@@ -9,15 +9,28 @@
 
   <p>Welcome to <strong>Swytch</strong>, a smart financial solution built by <strong>Team Banking Bank</strong> for the <strong>Pay Hack</strong> Hackathon. This Flutter app is designed to make switching between payment modes seamless, secure, and simple.</p>
 
-  <h2>📁 Project Structure</h2>
-  <p>Our Flutter project is organized with the main application logic located in the <code>lib/</code> directory.</p>
-  <ul>
-    <li><code>lib/main.dart</code>: Entry point of the application.</li>
-    <li>Other files and folders support UI, business logic, and utilities.</li>
-  </ul>
+ <h2>📂 Project Location</h2>
 
-  <h2>🚀 Getting Started</h2>
-  <p>To run the app on your local machine, follow the steps below:</p>
+<p>The Flutter project is located inside the following folder path:</p>
+
+<pre><code>payhack/Swytch/swytch/</code></pre>
+
+<p>To run the app:</p>
+
+<ol>
+  <li><strong>Navigate to the folder:</strong>
+    <pre><code>cd payhack/Swytch/swytch</code></pre>
+  </li>
+  <li><strong>Install dependencies:</strong>
+    <pre><code>flutter pub get</code></pre>
+  </li>
+  <li><strong>Run the app:</strong>
+    <pre><code>flutter run lib/main.dart</code></pre>
+  </li>
+</ol>
+
+<p><strong>Note:</strong> Make sure you have Flutter installed and a device or emulator connected.</p>
+
 
   <h3>1. Prerequisites</h3>
   <p>Ensure you have the following installed:</p>
