@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
  
- 
+ //test3//
  
 void main() => runApp(
   DevicePreview(
     enabled: true,
-    builder: (context) => const MyApp(), // Wrap your app
+    builder: (context) => const MyApp(), 
   ),
 );
 
@@ -156,7 +156,6 @@ class _MyAppState extends State<MyApp> {
         elevation: 0,
       ),
     );
-    // Use ValueKey to force SwytchHomePage to rebuild when balance or transactions change
     return MaterialApp(
       title: 'Swytch',
       theme: isOnline ? lightTheme : darkTheme,
@@ -1375,15 +1374,26 @@ class _LocalTransferPageState extends State<LocalTransferPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => PaymentDetailsPage(
-                        isOnline: isOnline,
-                        isOfflineLocal: _selectedTab == 'local',
-                        merchant: m['name']!,
-                        wallet: m['code']!,
-                        amount: '',
-                        onPayment: widget.onPayment,
+                      builder: (context) => MerchantDetailsPage(
+                        isOffline: !isOnline,
                         pointsBalance: widget.pointsBalance,
                         pointsHistory: widget.pointsHistory,
+                        onProceedToPayment: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => PaymentDetailsPage(
+                                isOnline: isOnline,
+                                isOfflineLocal: _selectedTab == 'local',
+                                merchant: m['name']!,
+                                wallet: m['code']!,
+                                amount: '',
+                                onPayment: widget.onPayment,
+                                pointsBalance: widget.pointsBalance,
+                                pointsHistory: widget.pointsHistory,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
@@ -1406,15 +1416,26 @@ class _LocalTransferPageState extends State<LocalTransferPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => PaymentDetailsPage(
-                        isOnline: isOnline,
-                        isOfflineLocal: _selectedTab == 'local',
-                        merchant: m['name']!,
-                        wallet: m['code']!,
-                        amount: '',
-                        onPayment: widget.onPayment,
+                      builder: (context) => MerchantDetailsPage(
+                        isOffline: !isOnline,
                         pointsBalance: widget.pointsBalance,
                         pointsHistory: widget.pointsHistory,
+                        onProceedToPayment: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => PaymentDetailsPage(
+                                isOnline: isOnline,
+                                isOfflineLocal: _selectedTab == 'local',
+                                merchant: m['name']!,
+                                wallet: m['code']!,
+                                amount: '',
+                                onPayment: widget.onPayment,
+                                pointsBalance: widget.pointsBalance,
+                                pointsHistory: widget.pointsHistory,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
@@ -1491,7 +1512,8 @@ class MerchantDetailsPage extends StatelessWidget {
   final bool isOffline;
   final int pointsBalance;
   final List<Map<String, dynamic>> pointsHistory;
-  const MerchantDetailsPage({super.key, this.isOffline = false, required this.pointsBalance, required this.pointsHistory});
+  final VoidCallback? onProceedToPayment;
+  const MerchantDetailsPage({super.key, this.isOffline = false, required this.pointsBalance, required this.pointsHistory, this.onProceedToPayment});
 
   @override
   Widget build(BuildContext context) {
@@ -1702,37 +1724,20 @@ class MerchantDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               // Proceed to Payment Button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: orange,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              if (onProceedToPayment != null)
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: orange,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onPressed: onProceedToPayment,
+                    child: const Text('Proceed to Payment'),
                   ),
-                  onPressed: () {
-                    final ancestor = context.findAncestorWidgetOfExactType<SwytchHomePage>();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PaymentDetailsPage(
-                          isOnline: !isOffline,
-                          isOfflineLocal: isOffline,
-                          merchant: 'FamilyMart',
-                          wallet: 'FMB829103720',
-                          amount: '',
-                          onPayment: (ancestor != null && ancestor is dynamic && ancestor.onPayment != null)
-                              ? ancestor.onPayment
-                              : null,
-                          pointsBalance: pointsBalance,
-                          pointsHistory: pointsHistory,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Proceed to Payment'),
                 ),
-              ),
             ],
           ),
         ),
