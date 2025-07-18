@@ -47,18 +47,7 @@ cd swytch
     <li>Click <strong>Run</strong>.</li>
   </ul>
 
-  <h2>📱 Platform Compatibility</h2>
-  <ul>
-    <li>Android ✅</li>
-    <li>iOS ✅</li>
-    <li>Web (experimental) ⚠️</li>
-  </ul>
 
-  <h2>🙌 About the Team</h2>
-  <ul>
-    <li><strong>Team Name:</strong> Banking Bank</li>
-    <li><strong>Hackathon:</strong> Pay Hack</li>
-    <li><strong>App Name:</strong> Swytch</li>
-  </ul>
+
 </body>
 </html>
