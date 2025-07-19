@@ -2199,14 +2199,6 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                               final now = DateTime.now();
                               final subtitle = formatTransactionSubtitle(context, now);
                               
-                              // Update points if used
-                              if (usePoints && (pointsToUseController.text != '0')) {
-                                final usedPoints = int.tryParse(pointsToUseController.text) ?? 0;
-                                if (widget.onPointsUpdate != null && usedPoints > 0) {
-                                  widget.onPointsUpdate!(points: usedPoints, title: 'Points Redeemed for ${widget.merchant}', isEarn: false);
-                                }
-                              }
-                              
                               if (widget.isOfflineLocal) {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -2220,7 +2212,9 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                                             widget.onPayment!(amount: amount, merchant: merchant, isDebit: isDebit, subtitle: subtitle);
                                           }
                                         : null,
-                                      onPointsUpdate: widget.onPointsUpdate,
+                                                                              onPointsUpdate: widget.onPointsUpdate,
+                                        pointsUsed: usePoints ? int.tryParse(pointsToUseController.text) ?? 0 : 0,
+                                        merchantName: widget.merchant,
                                     ),
                                   ),
                                 );
@@ -2336,6 +2330,8 @@ class PinVerificationPage extends StatefulWidget {
   final String merchant;
   final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle})? onPayment;
   final void Function({required int points, required String title, required bool isEarn})? onPointsUpdate;
+  final int? pointsUsed;
+  final String? merchantName;
   const PinVerificationPage({
     super.key, 
     required this.isOnline, 
@@ -2344,6 +2340,8 @@ class PinVerificationPage extends StatefulWidget {
     required this.merchant,
     this.onPayment,
     this.onPointsUpdate,
+    this.pointsUsed,
+    this.merchantName,
   });
 
   @override
@@ -2699,6 +2697,8 @@ class PinVerifiedPage extends StatelessWidget {
   final String merchant;
   final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle})? onPayment;
   final void Function({required int points, required String title, required bool isEarn})? onPointsUpdate;
+  final int? pointsUsed;
+  final String? merchantName;
   const PinVerifiedPage({
     super.key, 
     required this.isOnline, 
@@ -2707,6 +2707,8 @@ class PinVerifiedPage extends StatelessWidget {
     required this.merchant,
     this.onPayment,
     this.onPointsUpdate,
+    this.pointsUsed,
+    this.merchantName,
   });
 
   @override
@@ -2855,6 +2857,10 @@ class PinVerifiedPage extends StatelessWidget {
                       final now = DateTime.now();
                       final subtitle = formatTransactionSubtitle(context, now);
                       onPayment!(amount: amount, merchant: merchant, isDebit: true, subtitle: subtitle);
+                    }
+                    // Deduct points only after successful payment
+                    if (onPointsUpdate != null && pointsUsed != null && pointsUsed! > 0) {
+                      onPointsUpdate!(points: pointsUsed!, title: 'Points Redeemed for ${merchantName ?? merchant}', isEarn: false);
                     }
                     // Navigate back to the main app (QR code page) and clear the navigation stack
                     Navigator.of(context).popUntil((route) => route.isFirst);
