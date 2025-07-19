@@ -158,6 +158,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Swytch',
       theme: isOnline ? lightTheme : darkTheme,
       home: SwytchMainPage(
+        key: ValueKey('$pointsBalance-${pointsHistory.length}'),
         isOnline: isOnline,
         onToggle: toggleOnline,
         availableBalance: availableBalance,
@@ -192,7 +193,8 @@ class _SwytchMainPageState extends State<SwytchMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
+    // Create pages list dynamically to ensure it rebuilds when props change
+    final pages = <Widget>[
       SwytchHomePage(
         isOnline: widget.isOnline,
         onToggle: widget.onToggle,
@@ -1837,7 +1839,7 @@ class ScanQrPage extends StatelessWidget {
                 ),
                 onPressed: () {
                   // Simulate QR scan - navigate to PaymentDetailsPage for Family Mart (local transfer)
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => PaymentDetailsPage(
                         isOnline: isOnline,
@@ -2854,11 +2856,11 @@ class PinVerifiedPage extends StatelessWidget {
                       final subtitle = formatTransactionSubtitle(context, now);
                       onPayment!(amount: amount, merchant: merchant, isDebit: true, subtitle: subtitle);
                     }
-                    // Navigate back to home page and clear the navigation stack
+                    // Navigate back to the main app (QR code page) and clear the navigation stack
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: const Text(
-                    'Return to Home',
+                    'Back to App',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
