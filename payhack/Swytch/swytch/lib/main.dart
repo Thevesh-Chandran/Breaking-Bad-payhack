@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
  
- //test3//
+ //test4//
  
 void main() => runApp(
   DevicePreview(
@@ -208,7 +208,12 @@ class _SwytchMainPageState extends State<SwytchMainPage> {
         pointsBalance: widget.pointsBalance,
         pointsHistory: widget.pointsHistory,
       ),
-      ScanQrPage(isOnline: widget.isOnline, pointsBalance: widget.pointsBalance, pointsHistory: widget.pointsHistory),
+      ScanQrPage(
+        isOnline: widget.isOnline, 
+        pointsBalance: widget.pointsBalance, 
+        pointsHistory: widget.pointsHistory,
+        onPayment: widget.onPayment,
+      ),
       SPointsPage(
         isOnline: widget.isOnline,
         pointsBalance: widget.pointsBalance,
@@ -884,7 +889,13 @@ class TransferTypeSelectionPage extends StatelessWidget {
                     ? () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => LocalTransferPage(isOnline: isOnline, transferType: 'international', onPayment: onPayment, pointsBalance: pointsBalance, pointsHistory: pointsHistory),
+                            builder: (context) => LocalTransferPage(
+                              isOnline: isOnline, 
+                              transferType: 'international', 
+                              onPayment: onPayment, 
+                              pointsBalance: pointsBalance, 
+                              pointsHistory: pointsHistory
+                            ),
                           ),
                         );
                       }
@@ -905,7 +916,8 @@ class ExchangeRateSelectionPage extends StatefulWidget {
   final double sendAmount;
   final String sendCurrency;
   final String receiveCurrency;
-  const ExchangeRateSelectionPage({super.key, required this.sendAmount, required this.sendCurrency, required this.receiveCurrency});
+  final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle})? onPayment;
+  const ExchangeRateSelectionPage({super.key, required this.sendAmount, required this.sendCurrency, required this.receiveCurrency, this.onPayment});
 
   @override
   State<ExchangeRateSelectionPage> createState() => _ExchangeRateSelectionPageState();
@@ -1101,7 +1113,7 @@ class _ExchangeRateSelectionPageState extends State<ExchangeRateSelectionPage> {
                             isOfflineLocal: false,
                             amount: widget.sendAmount,
                             merchant: 'International Transfer',
-                            onPayment: ({required double amount, required String merchant, required bool isDebit, required String subtitle}) {},
+                            onPayment: widget.onPayment,
                           ),
                         ),
                       );
@@ -1766,7 +1778,8 @@ class ScanQrPage extends StatelessWidget {
   final bool isOnline;
   final int pointsBalance;
   final List<Map<String, dynamic>> pointsHistory;
-  const ScanQrPage({super.key, this.isOnline = true, required this.pointsBalance, required this.pointsHistory});
+  final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle})? onPayment;
+  const ScanQrPage({super.key, this.isOnline = true, required this.pointsBalance, required this.pointsHistory, this.onPayment});
 
   @override
   Widget build(BuildContext context) {
@@ -1828,7 +1841,7 @@ class ScanQrPage extends StatelessWidget {
                         merchant: 'FamilyMart',
                         wallet: 'FMB829103720',
                         amount: '',
-                        onPayment: null,
+                        onPayment: onPayment,
                         onPointsUpdate: null,
                         pointsBalance: pointsBalance,
                         pointsHistory: pointsHistory,
@@ -2209,6 +2222,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                                       sendAmount: payAmount,
                                       sendCurrency: 'RM',
                                       receiveCurrency: 'EUR',
+                                      onPayment: widget.onPayment,
                                     ),
                                   ),
                                 );
@@ -3133,7 +3147,7 @@ class VendorPage extends StatelessWidget {
         'name': 'Burger JI Legend Puchong',
         'img': '',
         'address': 'Jalan Bandar Puchong, Selangor',
-        'points': 60,
+        'percentage': 7,
         'reviews': 120,
         'rating': 4.7,
         'distance': 0.3,
@@ -3143,7 +3157,7 @@ class VendorPage extends StatelessWidget {
         'name': 'Yau Soya 【堯豆浆】',
         'img': '',
         'address': 'Taman Muda, Cheras, Kuala Lumpur',
-        'points': 50,
+        'percentage': 5,
         'reviews': 98,
         'rating': 4.8,
         'distance': 0.5,
@@ -3153,7 +3167,7 @@ class VendorPage extends StatelessWidget {
         'name': 'ABC Cendol Klasik',
         'img': '',
         'address': 'Seksyen 7, Shah Alam, Selangor',
-        'points': 40,
+        'percentage': 4,
         'reviews': 75,
         'rating': 4.0,
         'distance': 0.8,
@@ -3165,7 +3179,7 @@ class VendorPage extends StatelessWidget {
         'name': 'Ayam Goreng Berhantu',
         'img': '',
         'address': 'Jalan Pandan Medan Kampung Pandan Dalam 55100 Kuala Lumpur, Selangor',
-        'points': 30,
+        'percentage': 3,
         'reviews': 89,
         'rating': 4.6,
         'distance': 0.7,
@@ -3175,7 +3189,7 @@ class VendorPage extends StatelessWidget {
         'img': '',
         'name': 'Delicious Cucur Udang Fried Hot Hot!',
         'address': 'Restoran Mak Kimbong, 13, Jalan 4/1a, Seksyen 4 Tambahan Bandar Baru Bangi, Bandar Baru Bangi, Selangor',
-        'points': 30,
+        'percentage': 3,
         'reviews': 62,
         'rating': 4.1,
         'distance': 1.2,
@@ -3288,11 +3302,11 @@ class VendorDetailsPage extends StatelessWidget {
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                           ),
                         ),
-                        if (vendor['points'] != null)
+                        if (vendor['percentage'] != null)
                           Padding(
                             padding: const EdgeInsets.only(left: 6.0),
                             child: Text(
-                              '${vendor['points']} pts',
+                              '${vendor['percentage']}%',
                               style: TextStyle(
                                 color: orange,
                                 fontWeight: FontWeight.bold,
@@ -3664,7 +3678,7 @@ class VendorCardWidget extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
                         ),
                       ),
-                      if (v['points'] != null)
+                      if (v['percentage'] != null)
                         Container(
                           margin: const EdgeInsets.only(left: 6),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -3677,7 +3691,7 @@ class VendorCardWidget extends StatelessWidget {
                               Icon(Icons.monetization_on_rounded, color: orange, size: 16),
                               const SizedBox(width: 2),
                               Text(
-                                '${v['points']} pts',
+                                '${v['percentage']}%',
                                 style: TextStyle(color: orange, fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                             ],
