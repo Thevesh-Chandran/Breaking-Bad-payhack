@@ -1,9 +1,7 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
  
- //test4//
+ //test5//
  
 void main() => runApp(
   DevicePreview(
@@ -207,12 +205,14 @@ class _SwytchMainPageState extends State<SwytchMainPage> {
         onPayment: widget.onPayment,
         pointsBalance: widget.pointsBalance,
         pointsHistory: widget.pointsHistory,
+        onPointsUpdate: widget.onPointsUpdate,
       ),
       ScanQrPage(
         isOnline: widget.isOnline, 
         pointsBalance: widget.pointsBalance, 
         pointsHistory: widget.pointsHistory,
         onPayment: widget.onPayment,
+        onPointsUpdate: widget.onPointsUpdate,
       ),
       SPointsPage(
         isOnline: widget.isOnline,
@@ -815,7 +815,8 @@ class TransferTypeSelectionPage extends StatelessWidget {
   final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle}) onPayment;
   final int pointsBalance;
   final List<Map<String, dynamic>> pointsHistory;
-  const TransferTypeSelectionPage({super.key, required this.isOnline, required this.onPayment, required this.pointsBalance, required this.pointsHistory});
+  final void Function({required int points, required String title, required bool isEarn}) onPointsUpdate;
+  const TransferTypeSelectionPage({super.key, required this.isOnline, required this.onPayment, required this.pointsBalance, required this.pointsHistory, required this.onPointsUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -870,7 +871,7 @@ class TransferTypeSelectionPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => LocalTransferPage(isOnline: isOnline, transferType: 'local', onPayment: onPayment, pointsBalance: pointsBalance, pointsHistory: pointsHistory),
+                      builder: (context) => LocalTransferPage(isOnline: isOnline, transferType: 'local', onPayment: onPayment, pointsBalance: pointsBalance, pointsHistory: pointsHistory, onPointsUpdate: onPointsUpdate),
                     ),
                   );
                 },
@@ -894,7 +895,8 @@ class TransferTypeSelectionPage extends StatelessWidget {
                               transferType: 'international', 
                               onPayment: onPayment, 
                               pointsBalance: pointsBalance, 
-                              pointsHistory: pointsHistory
+                              pointsHistory: pointsHistory,
+                              onPointsUpdate: onPointsUpdate
                             ),
                           ),
                         );
@@ -1152,7 +1154,8 @@ class LocalTransferPage extends StatefulWidget {
   final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle}) onPayment;
   final int pointsBalance;
   final List<Map<String, dynamic>> pointsHistory;
-  const LocalTransferPage({super.key, required this.isOnline, required this.transferType, required this.onPayment, required this.pointsBalance, required this.pointsHistory});
+  final void Function({required int points, required String title, required bool isEarn}) onPointsUpdate;
+  const LocalTransferPage({super.key, required this.isOnline, required this.transferType, required this.onPayment, required this.pointsBalance, required this.pointsHistory, required this.onPointsUpdate});
 
   @override
   State<LocalTransferPage> createState() => _LocalTransferPageState();
@@ -1779,7 +1782,8 @@ class ScanQrPage extends StatelessWidget {
   final int pointsBalance;
   final List<Map<String, dynamic>> pointsHistory;
   final void Function({required double amount, required String merchant, required bool isDebit, required String subtitle})? onPayment;
-  const ScanQrPage({super.key, this.isOnline = true, required this.pointsBalance, required this.pointsHistory, this.onPayment});
+  final void Function({required int points, required String title, required bool isEarn})? onPointsUpdate;
+  const ScanQrPage({super.key, this.isOnline = true, required this.pointsBalance, required this.pointsHistory, this.onPayment, this.onPointsUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -1842,7 +1846,7 @@ class ScanQrPage extends StatelessWidget {
                         wallet: 'FMB829103720',
                         amount: '',
                         onPayment: onPayment,
-                        onPointsUpdate: null,
+                        onPointsUpdate: onPointsUpdate,
                         pointsBalance: pointsBalance,
                         pointsHistory: pointsHistory,
                       ),
@@ -2192,12 +2196,15 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                               final payAmount = baseAmount - (usePoints ? pointsValue : 0.0);
                               final now = DateTime.now();
                               final subtitle = formatTransactionSubtitle(context, now);
+                              
+                              // Update points if used
                               if (usePoints && (pointsToUseController.text != '0')) {
                                 final usedPoints = int.tryParse(pointsToUseController.text) ?? 0;
                                 if (widget.onPointsUpdate != null && usedPoints > 0) {
-                                  widget.onPointsUpdate!(points: usedPoints, title: 'Points Redeemed', isEarn: false);
+                                  widget.onPointsUpdate!(points: usedPoints, title: 'Points Redeemed for ${widget.merchant}', isEarn: false);
                                 }
                               }
+                              
                               if (widget.isOfflineLocal) {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -2847,11 +2854,8 @@ class PinVerifiedPage extends StatelessWidget {
                       final subtitle = formatTransactionSubtitle(context, now);
                       onPayment!(amount: amount, merchant: merchant, isDebit: true, subtitle: subtitle);
                     }
-                    // Always go to home page and clear stack
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => MyApp()),
-                      (route) => false,
-                    );
+                    // Navigate back to home page and clear the navigation stack
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: const Text(
                     'Return to Home',
